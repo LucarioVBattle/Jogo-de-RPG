@@ -629,27 +629,6 @@ function setupLevel3() {
     createItems();
     createEnemies();
     createExitDoor();
-}
-
-
-function setupLevel4() {
-    levelStartTime = Date.now();
-    
-    items = [
-        { x: 150, y: 150, tipo: "cura", emoji: "❤️", valor: 0 },
-        { x: 650, y: 250, tipo: "cura", emoji: "❤️", valor: 0 }
-    ];
-    
-    enemies = [
-        { x: 300, y: 100, direcao: 1, velocidade: 3, emoji: "🦝", dano: 15 },
-        { x: 500, y: 250, direcao: -1, velocidade: 4, emoji: "🐯", dano: 20 },
-        { x: 200, y: 300, direcao: 1, velocidade: 1, emoji: "🐻", dano: 10 },
-        { x: 200, y: 150, direcao: 1, velocidade: 5, emoji: "🐺", dano: 90 },
-        { x: 600, y: 200, direcao: -1, velocidade: 3, emoji: "🐐", dano: 60 }
-    ];
-    
-    createItems();
-    createEnemies();
 
 function createExitDoor() {
     exitDoor = { x: 700, y: 300 };
