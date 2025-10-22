@@ -10,13 +10,13 @@ const gameWorld = document.getElementById('game-world');
 // CONFIGURAÇÃO DO PERSONAGEM
 // ===================================
 let character = {
-    nome: "Eduardo Henrique",
-    classe: "Feiticeiro",
-    vida: 150,
-    vidaMaxima: 160,
+    nome: "Você",
+    classe: "Sobrevivente",
+    vida: 100,
+    vidaMaxima: 100,
     nivel: 1,
     experiencia: 0,
-    emoji: "🧙"
+    emoji: "👤"
 };
 
 // ===================================
@@ -39,26 +39,26 @@ let hasKey = false;
 
 const levels = {
     1: {
-        nome: "Floresta dos Iniciantes",
+        nome: "campos infectados",
         objetivo: "Colete 3 itens",
         backgroundColor: "#2d4a2e",
         itemsNeeded: 3
     },
     2: {
-        nome: "Caverna Sombria",
+        nome: "a cidade abandonda",
         objetivo: "Sobreviva por 30 segundos",
         backgroundColor: "#1a1a2e",
         timeLimit: 30
     },
     3: {
-        nome: "Castelo Final",
-        objetivo: "Encontre a saída!",
+        nome: "a entrada da base",
+        objetivo: "Encontre a entrada",
         backgroundColor: "#4a2d2d",
         hasExit: true
     },
     4: {
-        nome: "Arena do Desafio",
-        objetivo: "Derrote todos os inimigos!",
+        nome: "Base dos corruptores",
+        objetivo: "Derrote todos os inimigos",
         backgroundColor: "#5a2d2d",
         bossLevel: true
     }
@@ -465,7 +465,7 @@ function useAttack() {
             enemies.splice(i, 1);
             character.experiencia += 50;
             enemiesDefeated++;
-            console.log("💀 Inimigo derrotado! +50 EXP");
+            console.log("💀 Inimigo derrotado +50 EXP");
             checkLevelUp();
         }
     }
