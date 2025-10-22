@@ -1,7 +1,7 @@
+let playerLives = 3;
 // ===================================
 // ELEMENTOS DO DOM
 // ===================================
-
 const player = document.getElementById('player');
 const playerInfo = document.getElementById('player-info');
 const gameWorld = document.getElementById('game-world');
@@ -9,30 +9,27 @@ const gameWorld = document.getElementById('game-world');
 // ===================================
 // CONFIGURAÇÃO DO PERSONAGEM
 // ===================================
-
 let character = {
-    nome: "você",
-    classe: "Guerreiro",
-    vida: 100,
-    vidaMaxima: 100,
+    nome: "Eduardo Henrique",
+    classe: "Feiticeiro",
+    vida: 150,
+    vidaMaxima: 160,
     nivel: 1,
     experiencia: 0,
-    emoji: "🪖"
+    emoji: "🧙"
 };
 
 // ===================================
 // VARIÁVEIS DE POSIÇÃO E MOVIMENTO
 // ===================================
-
 let playerX = 50;
 let playerY = 180;
-let playerSpeed = 10;
+let playerSpeed = 20;
 let lastDirection = 'right';
 
 // ===================================
 // SISTEMA DE FASES
 // ===================================
-
 let currentLevel = 1;
 let itemsCollected = 0;
 let enemiesDefeated = 0;
@@ -58,27 +55,30 @@ const levels = {
         objetivo: "Encontre a saída!",
         backgroundColor: "#4a2d2d",
         hasExit: true
+    },
+    4: {
+        nome: "Arena do Desafio",
+        objetivo: "Derrote todos os inimigos!",
+        backgroundColor: "#5a2d2d",
+        bossLevel: true
     }
 };
 
 // ===================================
 // SISTEMA DE ITENS E INIMIGOS
 // ===================================
-
 let items = [];
 let enemies = [];
 
 // ===================================
 // SISTEMA DE INVENTÁRIO
 // ===================================
-
 let inventory = [];
 let maxInventorySize = 10;
 
 // ===================================
 // SISTEMA DE HABILIDADES
 // ===================================
-
 let abilities = {
     attack: {
         nome: "Ataque Especial",
@@ -100,68 +100,65 @@ let abilities = {
 // ===================================
 // SISTEMA DE SONS
 // ===================================
-
 const sounds = {
     collect: function() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            
+
             oscillator.frequency.value = 800;
             oscillator.type = 'sine';
-            
+
             gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            
+
             oscillator.start(audioCtx.currentTime);
             oscillator.stop(audioCtx.currentTime + 0.2);
         } catch(e) {
             console.log("Áudio não disponível");
         }
     },
-    
     damage: function() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            
+
             oscillator.frequency.value = 200;
             oscillator.type = 'sawtooth';
-            
+
             gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            
+
             oscillator.start(audioCtx.currentTime);
             oscillator.stop(audioCtx.currentTime + 0.3);
         } catch(e) {
             console.log("Áudio não disponível");
         }
     },
-    
     levelUp: function() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            
+
             oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
             oscillator.type = 'square';
-            
+
             gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            
+
             oscillator.start(audioCtx.currentTime);
             oscillator.stop(audioCtx.currentTime + 0.5);
         } catch(e) {
@@ -173,7 +170,6 @@ const sounds = {
 // ===================================
 // INICIALIZAÇÃO DO PERSONAGEM
 // ===================================
-
 function initializePlayer() {
     player.innerHTML = character.emoji;
     player.style.fontSize = "30px";
@@ -185,7 +181,6 @@ function initializePlayer() {
 // ===================================
 // MOVIMENTO DO PERSONAGEM
 // ===================================
-
 function movePlayer(direction) {
     if (direction === 'up') {
         playerY -= playerSpeed;
@@ -215,7 +210,6 @@ function movePlayer(direction) {
 // ===================================
 // EFEITOS VISUAIS
 // ===================================
-
 function createParticles(x, y, color, count) {
     for (let i = 0; i < count; i++) {
         const particle = document.createElement('div');
@@ -228,27 +222,27 @@ function createParticles(x, y, color, count) {
         particle.style.background = color;
         particle.style.borderRadius = '50%';
         particle.style.pointerEvents = 'none';
-        
+
         const angle = (Math.PI * 2 * i) / count;
         const velocity = 2 + Math.random() * 2;
         const vx = Math.cos(angle) * velocity;
         const vy = Math.sin(angle) * velocity;
-        
+
         gameWorld.appendChild(particle);
-        
+
         let posX = x;
         let posY = y;
         let life = 30;
-        
+
         const animateParticle = setInterval(function() {
             posX += vx;
             posY += vy;
             life--;
-            
+
             particle.style.left = posX + 'px';
             particle.style.top = posY + 'px';
             particle.style.opacity = life / 30;
-            
+
             if (life <= 0) {
                 particle.remove();
                 clearInterval(animateParticle);
@@ -260,19 +254,18 @@ function createParticles(x, y, color, count) {
 // ===================================
 // SISTEMA DE LEVEL UP
 // ===================================
-
 function checkLevelUp() {
     let expNecessaria = character.nivel * 100;
-    
+
     if (character.experiencia >= expNecessaria) {
         character.nivel++;
         character.experiencia -= expNecessaria;
         character.vidaMaxima += 20;
         character.vida = character.vidaMaxima;
-        
+
         sounds.levelUp();
         createParticles(playerX + 20, playerY + 20, '#FFD700', 12);
-        
+
         console.log("🎊 LEVEL UP! Agora você é nível " + character.nivel);
     }
 }
@@ -280,7 +273,6 @@ function checkLevelUp() {
 // ===================================
 // SISTEMA DE ITENS
 // ===================================
-
 function createItems() {
     items.forEach(function(item, index) {
         const itemElement = document.createElement('div');
@@ -290,7 +282,7 @@ function createItems() {
         itemElement.style.top = item.y + 'px';
         itemElement.style.fontSize = '30px';
         itemElement.innerHTML = item.emoji;
-        
+
         gameWorld.appendChild(itemElement);
     });
 }
@@ -299,12 +291,12 @@ function checkItemCollection() {
     items.forEach(function(item, index) {
         let distanceX = Math.abs(playerX - item.x);
         let distanceY = Math.abs(playerY - item.y);
-        
+
         if (distanceX < 40 && distanceY < 40) {
             // Efeitos visuais e sonoros
             sounds.collect();
             createParticles(item.x + 20, item.y + 20, '#FFD700', 8);
-            
+
             if (item.tipo === "cura") {
                 character.vida += 30;
                 if (character.vida > character.vidaMaxima) {
@@ -322,15 +314,15 @@ function checkItemCollection() {
                 itemsCollected++;
                 addToInventory(item);
             }
-            
+
             const itemElement = document.getElementById('item-' + index);
             if (itemElement) {
                 itemElement.remove();
             }
-            
+
             items.splice(index, 1);
             console.log("🎉 Coletou: " + item.emoji);
-            
+
             checkLevelUp();
             checkLevelComplete();
         }
@@ -340,7 +332,6 @@ function checkItemCollection() {
 // ===================================
 // SISTEMA DE INVENTÁRIO
 // ===================================
-
 function addToInventory(item) {
     if (inventory.length < maxInventorySize) {
         inventory.push({
@@ -359,15 +350,15 @@ function addToInventory(item) {
 
 function updateInventoryDisplay() {
     let inventoryPanel = document.getElementById('inventory-panel');
-    
+
     if (!inventoryPanel) {
         inventoryPanel = document.createElement('div');
         inventoryPanel.id = 'inventory-panel';
         document.getElementById('info-panel').appendChild(inventoryPanel);
     }
-    
+
     let inventoryHTML = '<strong>🎒 Inventário (' + inventory.length + '/' + maxInventorySize + '):</strong> ';
-    
+
     if (inventory.length === 0) {
         inventoryHTML += '<em>Vazio</em>';
     } else {
@@ -375,14 +366,13 @@ function updateInventoryDisplay() {
             inventoryHTML += item.emoji + ' ';
         });
     }
-    
+
     inventoryPanel.innerHTML = inventoryHTML;
 }
 
 // ===================================
 // SISTEMA DE INIMIGOS
 // ===================================
-
 function createEnemies() {
     enemies.forEach(function(enemy, index) {
         const enemyElement = document.createElement('div');
@@ -393,7 +383,7 @@ function createEnemies() {
         enemyElement.style.top = enemy.y + 'px';
         enemyElement.style.fontSize = '30px';
         enemyElement.innerHTML = enemy.emoji;
-        
+
         gameWorld.appendChild(enemyElement);
     });
 }
@@ -401,11 +391,11 @@ function createEnemies() {
 function moveEnemies() {
     enemies.forEach(function(enemy, index) {
         enemy.x += enemy.velocidade * enemy.direcao;
-        
+
         if (enemy.x <= 0 || enemy.x >= 760) {
             enemy.direcao *= -1;
         }
-        
+
         const enemyElement = document.getElementById('enemy-' + index);
         if (enemyElement) {
             enemyElement.style.left = enemy.x + 'px';
@@ -417,29 +407,25 @@ function checkEnemyCollision() {
     enemies.forEach(function(enemy) {
         let distanceX = Math.abs(playerX - enemy.x);
         let distanceY = Math.abs(playerY - enemy.y);
-        
+
         if (distanceX < 40 && distanceY < 40) {
             character.vida -= enemy.dano;
-            
+
             sounds.damage();
-            
+
             playerX -= enemy.direcao * 50;
             if (playerX < 0) playerX = 0;
             if (playerX > 760) playerX = 760;
-            
+
             player.style.left = playerX + 'px';
-            
-            player.style.background = '#ff0000';
-            setTimeout(function() {
-                player.style.background = '#ff6b6b';
-            }, 200);
-            
+            player.style.top = playerY + 'px';
+
             console.log("💥 Recebeu " + enemy.dano + " de dano!");
-            
+
             if (character.vida <= 0) {
                 gameOver();
             }
-            
+
             updateInfoPanel();
         }
     });
@@ -448,58 +434,63 @@ function checkEnemyCollision() {
 // ===================================
 // SISTEMA DE HABILIDADES
 // ===================================
-
 function useAttack() {
     const now = Date.now();
     const ability = abilities.attack;
-    
+
     if (now - ability.lastUsed < ability.cooldown) {
         const timeLeft = Math.ceil((ability.cooldown - (now - ability.lastUsed)) / 1000);
         console.log("⏳ Aguarde " + timeLeft + "s para atacar novamente");
         return;
     }
-    
+
     ability.lastUsed = now;
     console.log("⚔️ ATAQUE ESPECIAL!");
-    
+
     createAttackEffect();
-    
-    enemies.forEach(function(enemy, index) {
+
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        let enemy = enemies[i];
         let distanceX = Math.abs(playerX - enemy.x);
         let distanceY = Math.abs(playerY - enemy.y);
-        
+
         if (distanceX < ability.alcance && distanceY < ability.alcance) {
-            const enemyElement = document.getElementById('enemy-' + index);
+            const enemyElement = document.getElementById('enemy-' + i);
             if (enemyElement) {
                 enemyElement.innerHTML = "💥";
                 setTimeout(function() {
                     enemyElement.remove();
                 }, 300);
             }
-            
-            enemies.splice(index, 1);
+            enemies.splice(i, 1);
             character.experiencia += 50;
             enemiesDefeated++;
-            
             console.log("💀 Inimigo derrotado! +50 EXP");
             checkLevelUp();
         }
-    });
+    }
+
+    // Se estiver na fase 4, pode checar se todos os inimigos foram derrotados
+    if (currentLevel === 4 && enemies.length === 0) {
+        alert("🎉 Parabéns! Você derrotou todos os inimigos na fase final!");
+        // Aqui você pode reiniciar, mostrar créditos, etc.
+        location.reload();
+    }
 }
 
 function useDash(direction) {
     const now = Date.now();
     const ability = abilities.dash;
-    
+
     if (now - ability.lastUsed < ability.cooldown) {
         const timeLeft = Math.ceil((ability.cooldown - (now - ability.lastUsed)) / 1000);
         console.log("⏳ Aguarde " + timeLeft + "s para correr novamente");
         return;
     }
-    
+
     ability.lastUsed = now;
     console.log("💨 DASH!");
-    
+
     if (direction === 'up') {
         playerY -= ability.distancia;
     } else if (direction === 'down') {
@@ -509,17 +500,17 @@ function useDash(direction) {
     } else if (direction === 'right') {
         playerX += ability.distancia;
     }
-    
+
     if (playerX < 0) playerX = 0;
     if (playerX > 760) playerX = 760;
     if (playerY < 0) playerY = 0;
     if (playerY > 360) playerY = 360;
-    
+
     player.style.transition = 'all 0.2s';
     player.style.transform = 'scale(1.2)';
     player.style.left = playerX + 'px';
     player.style.top = playerY + 'px';
-    
+
     setTimeout(function() {
         player.style.transform = 'scale(1)';
         player.style.transition = 'all 0.1s';
@@ -528,7 +519,7 @@ function useDash(direction) {
 
 function createAttackEffect() {
     const effect = document.createElement('div');
-effect.style.position = 'absolute';
+    effect.style.position = 'absolute';
     effect.style.left = (playerX - 20) + 'px';
     effect.style.top = (playerY - 20) + 'px';
     effect.style.width = '80px';
@@ -537,9 +528,9 @@ effect.style.position = 'absolute';
     effect.style.borderRadius = '50%';
     effect.style.pointerEvents = 'none';
     effect.style.animation = 'attack-pulse 0.5s ease-out';
-    
+
     gameWorld.appendChild(effect);
-    
+
     setTimeout(function() {
         effect.remove();
     }, 500);
@@ -548,36 +539,37 @@ effect.style.position = 'absolute';
 // ===================================
 // SISTEMA DE FASES
 // ===================================
-
 function startLevel(levelNumber) {
     currentLevel = levelNumber;
     const level = levels[levelNumber];
-    
+
     items = [];
     enemies = [];
     itemsCollected = 0;
     hasKey = false;
-    
+
     document.querySelectorAll('.enemy, [id^="item-"], #exit-door').forEach(el => el.remove());
-    
+
     gameWorld.style.background = level.backgroundColor;
-    
+
     playerX = 50;
     playerY = 180;
     player.style.left = playerX + 'px';
     player.style.top = playerY + 'px';
-    
+
     console.log("🎮 Fase " + levelNumber + ": " + level.nome);
     console.log("🎯 Objetivo: " + level.objetivo);
-    
+
     if (levelNumber === 1) {
         setupLevel1();
     } else if (levelNumber === 2) {
         setupLevel2();
     } else if (levelNumber === 3) {
         setupLevel3();
+    } else if (levelNumber === 4) {
+        setupLevel4();
     }
-    
+
     updateInfoPanel();
 }
 
@@ -585,32 +577,26 @@ function setupLevel1() {
     items = [
         { x: 200, y: 100, tipo: "moeda", emoji: "💰", valor: 10 },
         { x: 400, y: 200, tipo: "poção", emoji: "🧪", valor: 20 },
-        { x: 600, y: 150, tipo: "estrela", emoji: "⭐", valor: 50 },
-        { x: 300, y: 300, tipo: "diamante", emoji: "💎", valor: 30 }
+        { x: 600, y: 150, tipo: "estrela", emoji: "⭐", valor: 50 }
     ];
-    
     enemies = [
         { x: 350, y: 100, direcao: 1, velocidade: 2, emoji: "🐛", dano: 5 }
     ];
-    
     createItems();
     createEnemies();
 }
 
 function setupLevel2() {
     levelStartTime = Date.now();
-    
     items = [
         { x: 150, y: 150, tipo: "cura", emoji: "❤️", valor: 0 },
         { x: 650, y: 250, tipo: "cura", emoji: "❤️", valor: 0 }
     ];
-    
     enemies = [
         { x: 300, y: 100, direcao: 1, velocidade: 3, emoji: "🦇", dano: 10 },
         { x: 500, y: 250, direcao: -1, velocidade: 4, emoji: "👻", dano: 15 },
         { x: 200, y: 300, direcao: 1, velocidade: 2, emoji: "🕷️", dano: 8 }
     ];
-    
     createItems();
     createEnemies();
 }
@@ -619,20 +605,29 @@ function setupLevel3() {
     items = [
         { x: 300, y: 100, tipo: "chave", emoji: "🔑", valor: 100 }
     ];
-    
     enemies = [
         { x: 200, y: 150, direcao: 1, velocidade: 2, emoji: "🐉", dano: 20 },
         { x: 600, y: 200, direcao: -1, velocidade: 3, emoji: "⚔️", dano: 18 }
     ];
-    
     createItems();
     createEnemies();
     createExitDoor();
 }
 
+function setupLevel4() {
+    items = [
+        { x: 400, y: 200, tipo: "cura", emoji: "❤️", valor: 0 }
+    ];
+    enemies = [
+        { x: 200, y: 100, direcao: 1, velocidade: 4, emoji: "👹", dano: 25 },
+        { x: 600, y: 300, direcao: -1, velocidade: 5, emoji: "💀", dano: 30 }
+    ];
+    createItems();
+    createEnemies();
+}
+
 function createExitDoor() {
     exitDoor = { x: 700, y: 300 };
-    
     const doorElement = document.createElement('div');
     doorElement.id = 'exit-door';
     doorElement.style.position = 'absolute';
@@ -640,19 +635,18 @@ function createExitDoor() {
     doorElement.style.top = exitDoor.y + 'px';
     doorElement.style.fontSize = '40px';
     doorElement.innerHTML = '🚪';
-    
     gameWorld.appendChild(doorElement);
 }
 
 function checkLevelComplete() {
     const level = levels[currentLevel];
-    
+
     if (currentLevel === 1 && itemsCollected >= level.itemsNeeded) {
         alert("🎉 Fase 1 Completa! Você coletou todos os itens!");
         startLevel(2);
         return;
     }
-    
+
     if (currentLevel === 2) {
         let timeElapsed = (Date.now() - levelStartTime) / 1000;
         if (timeElapsed >= level.timeLimit) {
@@ -661,15 +655,16 @@ function checkLevelComplete() {
             return;
         }
     }
-    
+
     if (currentLevel === 3 && exitDoor) {
         let distanceX = Math.abs(playerX - exitDoor.x);
         let distanceY = Math.abs(playerY - exitDoor.y);
-        
+
         if (distanceX < 40 && distanceY < 40) {
             if (hasKey) {
-                alert("🏆 PARABÉNS! Você completou TODAS as fases!\n\n🔑 Você usou a chave e escapou!\n⭐ Pontuação Final: " + character.experiencia + " EXP");
-                location.reload();
+                alert("🚪 Você usou a chave e escapou! Preparando para o desafio final...");
+                startLevel(4);
+                return;
             } else {
                 alert("🚪 A porta está trancada! Você precisa encontrar a CHAVE 🔑 primeiro!");
                 console.log("⚠️ Procure pela chave 🔑 antes de tentar abrir a porta!");
@@ -681,11 +676,10 @@ function checkLevelComplete() {
 // ===================================
 // ATUALIZAÇÃO DO PAINEL DE INFORMAÇÕES
 // ===================================
-
 function updateInfoPanel() {
     const level = levels[currentLevel];
     let objetivoText = level.objetivo;
-    
+
     if (currentLevel === 1) {
         objetivoText += ` (${itemsCollected}/${level.itemsNeeded})`;
     } else if (currentLevel === 2) {
@@ -698,47 +692,53 @@ function updateInfoPanel() {
         } else {
             objetivoText += " 🔑 Encontre a chave primeiro!";
         }
+    } else if (currentLevel === 4) {
+        objetivoText += ` (Inimigos restantes: ${enemies.length})`; 
     }
-    
+
     playerInfo.innerHTML = `
         <strong>🎮 Fase ${currentLevel}:</strong> ${level.nome}<br>
         <strong>🎯 Objetivo:</strong> ${objetivoText}<br>
         <strong>${character.nome}</strong> (${character.classe}) - Nível ${character.nivel}<br>
-        ❤️ Vida: ${character.vida}/${character.vidaMaxima} | 
-        ⭐ EXP: ${character.experiencia} | 
-        📍 X: ${playerX}, Y: ${playerY}
+        ❤️ Vida: ${character.vida}/${character.vidaMaxima} | ⭐ EXP: ${character.experiencia} | 📍 X: ${playerX}, Y: ${playerY}
     `;
 }
 
 // ===================================
 // GAME OVER
 // ===================================
-
 function gameOver() {
-    character.vida = 0;
-    alert("💀 GAME OVER! Você foi derrotado...\n\nPontuação final: " + character.experiencia + " EXP");
-    location.reload();
+    playerLives--;
+    if (playerLives > 0) {
+        alert("💔 Você perdeu uma vida! Vidas restantes: " + playerLives);
+        character.vida = character.vidaMaxima;
+        playerX = 50;
+        playerY = 180;
+        player.style.left = playerX + 'px';
+        player.style.top = playerY + 'px';
+    } else {
+        alert("💀 GAME OVER! Você perdeu todas as vidas!\n\nPontuação final: " + character.experiencia + " EXP");
+        location.reload();
+    }
 }
 
 // ===================================
 // LOOP PRINCIPAL DO JOGO
 // ===================================
-
 function gameLoop() {
     moveEnemies();
     checkEnemyCollision();
-    
-    if (currentLevel === 2) {
+
+    if (currentLevel === 2 || currentLevel === 3) {
         checkLevelComplete();
     }
-    
+
     updateInfoPanel();
 }
 
 // ===================================
 // CONTROLES DO TECLADO
 // ===================================
-
 document.addEventListener('keydown', function(event) {
     if (event.key === 'ArrowUp') {
         movePlayer('up');
@@ -763,22 +763,16 @@ document.addEventListener('keydown', function(event) {
 // ===================================
 // INICIALIZAÇÃO DO JOGO
 // ===================================
-
 console.log("🎮 Iniciando jogo...");
-console.log("===================================");
-
 initializePlayer();
 updateInventoryDisplay();
 startLevel(1);
-
-// Inicia o loop do jogo (30 FPS)
 setInterval(gameLoop, 1000 / 30);
-
 console.log("✅ Jogo carregado com sucesso!");
-console.log("===================================");
-console.log("🎯 CONTROLES:");
-console.log("   ⬆️⬇️⬅️➡️ = Mover");
-console.log("   ESPAÇO = Atacar");
-console.log("   SHIFT = Dash");
-console.log("===================================");
-console.log("Boa sorte, aventureiro! 🗡️");
+console.log("🎯 CONTROLES: ⬆️⬇️⬅️➡️ = mover | ESPAÇO = atacar | SHIFT = dash");
+if (currentLevel === 4 && enemies.length === 0) {
+    setTimeout(() => {
+        alert("🏆✨ PARABÉNS, HERÓI! ✨🏆\n\nVocê venceu todos os desafios com coragem e sabedoria!\n\n🧙‍♂️💥⚔️💎🗝️🚪🌟\n\nObrigado por jogar!");
+        location.reload();
+    }, 500); // pequeno delay para mostrar o efeito final
+}
